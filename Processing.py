@@ -145,13 +145,15 @@ def bringScreensToFront(frames, screens):
         if screen is None:
             output_screens.append(np.zeros((frame.shape[1], frame.shape[0], 3), dtype=np.uint8))
             continue
-
+        
+        # Compute the minimum area rotated rectangle of the screen
         (X, Y), (W, H), R = cv2.minAreaRect(screen)
         X = int(X)
         Y = int(Y)
         W = int(W)
         H = int(H)
 
+        # If the screen is "mostly vertical", then consider it a phone screen?
         if R > 45:
             R -= 90
             W, H = H, W
@@ -165,11 +167,12 @@ def bringScreensToFront(frames, screens):
         right_upper_corner = [int(X + W / 2), int(Y - H / 2)]
         right_down_corner = [int(X + W / 2), int(Y + H / 2)]
 
+        # Get the transformation matrix from a rotated screen to a screen with edges parallel to the axis 
         pts1 = np.float32([left_upper_corner, left_down_corner, right_upper_corner, right_down_corner])
         pts2 = np.float32([[0, 0], [0, H], [W, 0], [W, H]])
-
         M = cv2.getPerspectiveTransform(pts1, pts2)
 
+        # Apply the transformation to the input
         dst = cv2.warpPerspective(frame, M, (W, H))
         output_screens.append(dst)
 
