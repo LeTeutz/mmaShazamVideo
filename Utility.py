@@ -56,9 +56,13 @@ def fixBorder(frame):
     return frame
 
 
+def readVideo(path):
+    return cv2.VideoCapture(path)
+
+
 def stabilizeVideo(path):
     frames_out = []
-    cap = cv2.VideoCapture(path)
+    cap = readVideo(path)
 
     n_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))

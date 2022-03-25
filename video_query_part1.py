@@ -23,9 +23,52 @@ args = parser.parse_args()
 """
 
 
+def sliding_window(q_duration, frame_rate, x, w, compare_func):
+    """ Slide window w over signal x.
+
+        compare_func should be a functions that calculates some score between w and a chunk of x
+    """
+    # Compute the score for each frame
+    best_matches = []
+    wl = len(w) 
+    for i in range(len(x) - wl):
+        diff = compare_func(w, x[i:(i+wl)])
+        frame_number = i
+        best_matches.append((diff, frame_number))
+
+    # Sort the frames increasingly in terms of difference
+    best_matches.sort(key = lambda x: x[0])
+    
+    # Iterate through all frames
+    last_frame = -np.inf
+    ans = []
+    shift_value = 10
+    for i in range(len(best_matches)):
+        if len(ans) == 3:
+            break
+        # If current frame can be added to the answer list, do so
+        (score, frame) = best_matches[i] 
+        if frame - last_frame >= q_duration * frame_rate:
+            ans.append((frame, score))
+            i += shift_value - 1
+            last_frame = frame # Update the last frame added to the list
+
+    return ans
+
+
+def euclidean_norm_mean(x,y):
+    x = np.mean(x, axis=0)
+    y = np.mean(y, axis=0)
+    return np.linalg.norm(x-y)
+
+
+def euclidean_norm(x,y):
+    return np.linalg.norm(x-y)
+
+
 features = ['colorhists', 'tempdiffs', 'audiopowers', 'mfccs', 'colorhistdiffs']
 
-def computeFeatures(frames, start, end, feature):
+def queryDatabase(frames, start, end, training_set, feature):
     frame_count = get_frame_count(frames) + 1
     frame_rate = get_frame_rate(frames)
     q_duration = float(start) - float(end)
@@ -69,51 +112,6 @@ def computeFeatures(frames, start, end, feature):
         prev_frame = frame
         frame_nbr += 1
 
-
-def sliding_window(q_duration, frame_rate, x, w, compare_func):
-    """ Slide window w over signal x.
-
-        compare_func should be a functions that calculates some score between w and a chunk of x
-    """
-    # Compute the score for each frame
-    best_matches = []
-    wl = len(w)
-    for i in range(len(x) - wl):
-        diff = compare_func(w, x[i:(i+wl)])
-        frame_number = i
-        best_matches.append((diff, frame_number))
-
-    # Sort the frames increasingly in terms of difference
-    best_matches.sort(key = lambda x: x[0])
-    
-    # Iterate through all frames
-    last_frame = -np.inf
-    ans = []
-    shift_value = 10
-    for i in range(len(best_matches)):
-        if len(ans) == 3:
-            break
-        # If current frame can be added to the answer list, do so
-        (score, frame) = best_matches[i] 
-        if frame - last_frame >= q_duration * frame_rate:
-            ans.append((frame, score))
-            i += shift_value - 1
-            last_frame = frame # Update the last frame added to the list
-
-    return ans
-
-
-def euclidean_norm_mean(x,y):
-    x = np.mean(x, axis=0)
-    y = np.mean(y, axis=0)
-    return np.linalg.norm(x-y)
-
-
-def euclidean_norm(x,y):
-    return np.linalg.norm(x-y)
-
-
-def findResult(frame_rate, q_duration, query_features, feature, training_set):
     # Compare with database
     video_types = ('*.mp4', '*.MP4', '*.avi')
     audio_types = ('*.wav', '*.WAV')

@@ -8,9 +8,10 @@ import math
 
 import Utility as util
 import Processing as proc
+import Query as query
 
 
-def start(file_path, sample_frequency):
+def start(file_path, sample_frequency, start, end, training_set, feature):
     # frames = util.getFrames(file_path)
     # frames = [frames[i] for i in range(len(frames)) if i % sample_frequency == 0]
 
@@ -26,5 +27,10 @@ def start(file_path, sample_frequency):
     
     # --4. Crop the video to show just the screen, with rotation adjusted
     frames = proc.bringScreensToFront(frames, screens)
+
+    # --5. Query the database and print answer
+    video = util.readVideo(file_path)
+    n_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
+    query.queryDatabase(frames, start, end, training_set, feature)
 
     util.displayFrames(frames)
