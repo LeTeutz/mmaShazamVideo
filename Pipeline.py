@@ -31,6 +31,6 @@ def start(file_path, sample_frequency, start, end, training_set, feature):
     # --5. Query the database and print answer
     video = util.readVideo(file_path)
     n_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
-    query.queryDatabase(frames, start, end, training_set, feature)
+    query.queryDatabase(file_path, frames, start, end, training_set, feature)
 
     util.displayFrames(frames)

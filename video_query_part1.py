@@ -47,7 +47,7 @@ def sliding_window(q_duration, frame_rate, x, w, compare_func):
         if len(ans) == 3:
             break
         # If current frame can be added to the answer list, do so
-        (score, frame) = best_matches[i] 
+        (score, frame) = best_matches[i]
         if frame - last_frame >= q_duration * frame_rate:
             ans.append((frame, score))
             i += shift_value - 1
@@ -68,11 +68,11 @@ def euclidean_norm(x,y):
 
 features = ['colorhists', 'tempdiffs', 'audiopowers', 'mfccs', 'colorhistdiffs']
 
-def queryDatabase(frames, start, end, training_set, feature):
-    frame_count = get_frame_count(frames) + 1
-    frame_rate = get_frame_rate(frames)
+def queryDatabase(file_path, frames, start, end, training_set, feature):
+    frame_count = get_frame_count(file_path) + 1
+    frame_rate = get_frame_rate(file_path)
     q_duration = float(start) - float(end)
-    q_total = get_duration(frames)
+    q_total = get_duration(file_path)
 
     if not float(start) < float(end) < q_total:
         print('Timestamp for end of query set to:', q_duration)
@@ -122,7 +122,7 @@ def queryDatabase(frames, start, end, training_set, feature):
         files = training_set + '/' +  type_
         video_list.extend(glob.glob(files))    
 
-    db_name = 'db/video_database.db'
+    db_name = '~/mma-lab/Code/db/video_database.db'
     search = video_search.Searcher(db_name)
 
     # Loop over all videos in the database and compare frame by frame

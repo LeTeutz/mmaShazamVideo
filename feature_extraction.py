@@ -27,7 +27,7 @@ def get_harris_features(im_list):
     total = len(im_list)
     bar = progressbar.ProgressBar(maxval=total, \
             widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
-    print 'Generating Harris features for [', total, '] images ...'
+    print('Generating Harris features for [', total, '] images ...')
     bar.start()
     features = {}
     count = 0
@@ -52,7 +52,7 @@ def get_colorhist(im_list):
     total = len(im_list)
     bar = progressbar.ProgressBar(maxval=total, \
             widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
-    print 'Generating ColorHist features for [', total, '] images ...'
+    print('Generating ColorHist features for [', total, '] images ...')
     bar.start()
     features = {}
     count = 0
@@ -73,7 +73,7 @@ def get_sift_features(im_list):
     bar = progressbar.ProgressBar(maxval=total, \
             widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
     count = 0
-    print 'Generating SIFT features for [', total, '] images ...'
+    print('Generating SIFT features for [', total, '] images ...')
     bar.start()
     for im_name in im_list:
         bar.update(count)
@@ -88,19 +88,19 @@ def get_sift_features(im_list):
 # extract tags
 def extract_tags(filename):
     try:
-        print 'tags for', filename
+        print('tags for', filename)
         img = PIL.Image.open(filename)
         exif_data = {
             PIL.ExifTags.TAGS[k]: v
             for k, v in img._getexif().items()
             if k in PIL.ExifTags.TAGS
         }
-        print exif_data['UserComment']
+        print(exif_data['UserComment'])
         tags = exif_data['UserComment'].split(',')
         tags = [t.strip() for t in tags]
         return tags
     except:
-        print 'No tags could be found for: ' + filename
+        print('No tags could be found for: ' + filename)
         return []
 
 # extract exif

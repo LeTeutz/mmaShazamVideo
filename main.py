@@ -11,30 +11,30 @@ import Utility as util
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--file_path', type=str, default='wtl_noise.mp4')
+    parser.add_argument('--file_path', type=str, default='Videos/wtl_noise.mp4')
     parser.add_argument('--sample_frequency', type=int, default=5)
-
-    video = util.readVideo(args.file_path)
-    n_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
-
     parser.add_argument('--start', type=int, default=0)
-    parser.add_argument('--end', type=int, default=n_frames-1)
+    parser.add_argument('--end', type=int, default=10)
+    parser.add_argument('--training_set', type=str, default='~/mma-lab/Code/db/video_database.db')
     parser.add_argument('--feature', type=str, default='colorhists')
 
+    # Parse the arguments from the input command
     args = parser.parse_args()
     return args
 
 
 if __name__ == '__main__':
+    # Extract the parsed arguments
     args = get_args()
     file_path = args.file_path
     sample_frequency = args.sample_frequency
     start = args.start
     end = args.end
+    training_set = args.training_set
     feature = args.feature
 
-    start_time = time.time()
+    start_time = time.time() 
 
-    Pipeline.start(file_path, sample_frequency, start, end, feature)
+    Pipeline.start(file_path, sample_frequency, start, end, training_set, feature) # Starting the pipeline
 
-    print("--- %s seconds ---" % (time.time() - start_time))
+    print("--- %s seconds ---" % (time.time() - start_time)) # Tracking the total processing time

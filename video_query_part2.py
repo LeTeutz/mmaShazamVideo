@@ -89,7 +89,7 @@ for type_ in video_types:
     files = args.training_set + '/' +  type_
     video_list.extend(glob.glob(files))    
 
-db_name = 'db/video_database.db'
+db_name = '~/mma-lab/Code/db/video_database.db'
 search = video_search.Searcher(db_name)
 
 def sliding_window(x, w, compare_func):
