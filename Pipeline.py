@@ -29,6 +29,7 @@ def start(file_path, sample_frequency, start, end, training_set, feature):
     frames = proc.bringScreensToFront(frames, screens)
 
     # --5. Query the database and print answer
-    query.queryDatabase(file_path, frames, start, end, training_set, feature)
+    (best_video, best_score) = query.queryDatabase(file_path, frames, start, end, training_set, feature)
+    print("Best answer can be found in video " + str(best_video) + " with score " + str(best_score))
 
     #util.displayFrames(frames)

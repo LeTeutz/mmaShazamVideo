@@ -116,21 +116,17 @@ def queryDatabase(file_path, frames, start, end, training_set, feature):
     video_types = ('*.mp4', '*.MP4', '*.avi')
     audio_types = ('*.wav', '*.WAV')
 
-    print("training_set=", training_set)
-
     # Grab all video file names
     video_list = []
     for type_ in video_types:
         files = training_set + '/' +  type_
-        video_list.extend(glob.glob(files))    
-
-    print("video_list=", video_list)
+        video_list.extend(glob.glob(files))
 
     db_name = '../../Code/db/video_database.db'
     search = video_search.Searcher(db_name)
 
     # Loop over all videos in the database and compare frame by frame
-    scores = []
+    final_answers = []
     for video in video_list:
         print(video)
         if get_duration(video) < q_duration:
@@ -138,6 +134,7 @@ def queryDatabase(file_path, frames, start, end, training_set, feature):
             print('Error: query is longer than database video')
             continue
 
+        scores = []
         w = np.array(query_features)
         if feature == features[0]:
             x = search.get_colorhists_for(video)
@@ -158,11 +155,18 @@ def queryDatabase(file_path, frames, start, end, training_set, feature):
             x = search.get_chdiffs_for(video)
             scores = sliding_window(q_duration, frame_rate, x, w, euclidean_norm)
 
-        print("scores=", scores)
-        
         # Print the results
-        print('Best matches at:')
-        for i in range(len(scores)):
-            (frame, score) = scores[i]
-            print(str(i + 1) + '.', frame/frame_rate, 'seconds, with score of:', score)
-        print('')
+        # print('Best matches at:')
+        # for i in range(len(scores)):
+        #     (frame, score) = scores[i]
+        #     print(str(i + 1) + '.', frame/frame_rate, 'seconds, with score of:', score)
+        # print('')
+
+        # Add the frame with the most similarity to the list of possible final answers
+        final_answers.append((video, max(p[1] for p in scores)))
+
+    # Sort the list of possible final answers to find the final answer 
+    final_answers.sort(key = lambda x : x[1])
+    (best_video, best_score) = final_answers[0]
+
+    return (best_video, best_score)
