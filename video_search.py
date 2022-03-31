@@ -3,6 +3,7 @@ import numpy as np
 import sqlite3 as sqlite
 from os.path import basename
 
+
 class Searcher:
 
     def __init__(self, db):
@@ -10,7 +11,7 @@ class Searcher:
 
     def __del__(self):
         self.con.close()
-        
+
     def get_filename(self, vidid):
         """Return the filename for a video id"""
         s = self.con.execute("select filename from vidlist where rowid='%d'" % vidid).fetchone()
@@ -33,7 +34,7 @@ class Searcher:
 
     def get_features_for(self, vid_name, feature):
         vidid = self.con.execute("select rowid from vidlist where filename='%s'" % basename(vid_name)).fetchone()
-        query = "select features from "+feature+" where vidid="+str(vidid[0])
+        query = "select features from " + feature + " where vidid=" + str(vidid[0])
         s = self.con.execute(query).fetchone()
         # use pickle to decode NumPy arrays from string
         return pickle.loads(str(s[0]))

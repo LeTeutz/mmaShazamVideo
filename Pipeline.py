@@ -18,13 +18,13 @@ def start(file_path, sample_frequency, start, end, training_set, feature):
     # Pipeline:
     # --1. Stabilize Video
     frames = util.stabilizeVideo(file_path)
-    
+
     # --2. Sample the video at a certain frequency
     frames = [frames[i] for i in range(len(frames)) if i % sample_frequency == 0]
-    
+
     # --3. Process and rotate all the images
     canny_frames, screens = proc.findScreensInFramesCanny(frames)
-    
+
     # --4. Crop the video to show just the screen, with rotation adjusted
     frames = proc.bringScreensToFront(frames, screens)
 
@@ -32,4 +32,4 @@ def start(file_path, sample_frequency, start, end, training_set, feature):
     (best_video, best_score) = query.queryDatabase(file_path, frames, start, end, training_set, feature)
     print("Best answer can be found in video " + str(best_video) + " with score " + str(best_score))
 
-    #util.displayFrames(frames)
+    # util.displayFrames(frames)
