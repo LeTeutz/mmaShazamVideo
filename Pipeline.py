@@ -29,8 +29,6 @@ def start(file_path, sample_frequency, start, end, training_set, feature):
     frames = proc.bringScreensToFront(frames, screens)
 
     # --5. Query the database and print answer
-    video = util.readVideo(file_path)
-    n_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
     query.queryDatabase(file_path, frames, start, end, training_set, feature)
 
-    util.displayFrames(frames)
+    #util.displayFrames(frames)

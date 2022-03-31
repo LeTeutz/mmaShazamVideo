@@ -15,7 +15,7 @@ def get_args():
     parser.add_argument('--sample_frequency', type=int, default=5)
     parser.add_argument('--start', type=int, default=0)
     parser.add_argument('--end', type=int, default=10)
-    parser.add_argument('--training_set', type=str, default='~/mma-lab/Code/db/video_database.db')
+    parser.add_argument('--training_set', type=str, default='../../New_Videos')
     parser.add_argument('--feature', type=str, default='colorhists')
 
     # Parse the arguments from the input command

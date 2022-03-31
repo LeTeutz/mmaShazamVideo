@@ -116,16 +116,21 @@ def queryDatabase(file_path, frames, start, end, training_set, feature):
     video_types = ('*.mp4', '*.MP4', '*.avi')
     audio_types = ('*.wav', '*.WAV')
 
+    print("training_set=", training_set)
+
     # Grab all video file names
     video_list = []
     for type_ in video_types:
         files = training_set + '/' +  type_
         video_list.extend(glob.glob(files))    
 
+    print("video_list=", video_list)
+
     db_name = '../../Code/db/video_database.db'
     search = video_search.Searcher(db_name)
 
     # Loop over all videos in the database and compare frame by frame
+    scores = []
     for video in video_list:
         print(video)
         if get_duration(video) < q_duration:
@@ -152,8 +157,10 @@ def queryDatabase(file_path, frames, start, end, training_set, feature):
         elif feature == features[4]:
             x = search.get_chdiffs_for(video)
             scores = sliding_window(q_duration, frame_rate, x, w, euclidean_norm)
+
+        print("scores=", scores)
         
-        
+        # Print the results
         print('Best matches at:')
         for i in range(len(scores)):
             (frame, score) = scores[i]
