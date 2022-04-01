@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 
+
 def temporal_diff(frame1, frame2, threshold=50):
     if frame1 is None or frame2 is None:
         return None
@@ -14,7 +15,3 @@ def colorhist_diff(hist1, hist2):
         return None
     diff = np.abs(hist1 - hist2)
     return np.sum(diff)
-
-
-
-

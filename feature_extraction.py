@@ -8,14 +8,16 @@ import PIL.Image
 import PIL.ExifTags
 from mfcc_talkbox import mfcc
 
+
 def extract_metadata(im_list):
-	features = {}
-	for im_name in im_list:
-		tags = None
-		geotags = extract_exif(im_name)
-		features[im_name] = (tags, geotags)
-		
-	return features	
+    features = {}
+    for im_name in im_list:
+        tags = None
+        geotags = extract_exif(im_name)
+        features[im_name] = (tags, geotags)
+
+    return features
+
 
 def harris_features(im):
     response = cv2.cornerHarris(im, 7, 5, 0.05)
@@ -23,10 +25,10 @@ def harris_features(im):
     desc = harris.get_descriptors(im, points)
     return points, desc
 
+
 def get_harris_features(im_list):
     total = len(im_list)
-    bar = progressbar.ProgressBar(maxval=total, \
-            widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
+    bar = progressbar.ProgressBar(maxval=total, widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
     print('Generating Harris features for [', total, '] images ...')
     bar.start()
     features = {}
@@ -40,18 +42,20 @@ def get_harris_features(im_list):
     bar.finish()
     return features
 
+
 def colorhist(im):
     chans = cv2.split(im)
-    color_hist = np.zeros((256,len(chans)))
+    color_hist = np.zeros((256, len(chans)))
     for i in range(len(chans)):
-        color_hist[:,i] = np.histogram(chans[i], bins=np.arange(256+1))[0]/float((chans[i].shape[0]*chans[i].shape[1]))
+        color_hist[:, i] = np.histogram(chans[i], bins=np.arange(256 + 1))[0] / float(
+            (chans[i].shape[0] * chans[i].shape[1]))
     return color_hist
 
 
 def get_colorhist(im_list):
     total = len(im_list)
     bar = progressbar.ProgressBar(maxval=total, \
-            widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
+                                  widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
     print('Generating ColorHist features for [', total, '] images ...')
     bar.start()
     features = {}
@@ -65,13 +69,14 @@ def get_colorhist(im_list):
     bar.finish()
     return features
 
+
 def get_sift_features(im_list):
     """get_sift_features accepts a list of image names and computes the sift descriptos for each image. It returns a dictionary with descriptor as value and image name as key """
     sift = cv2.xfeatures2d.SIFT_create()
     features = {}
     total = len(im_list)
     bar = progressbar.ProgressBar(maxval=total, \
-            widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
+                                  widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
     count = 0
     print('Generating SIFT features for [', total, '] images ...')
     bar.start()
@@ -84,7 +89,8 @@ def get_sift_features(im_list):
         count += 1
     bar.finish()
     return features
-    
+
+
 # extract tags
 def extract_tags(filename):
     try:
@@ -102,6 +108,7 @@ def extract_tags(filename):
     except:
         print('No tags could be found for: ' + filename)
         return []
+
 
 # extract exif
 def extract_exif(filename):
@@ -124,26 +131,26 @@ def extract_exif(filename):
             GPS GPSAltitude 3653/1134
             GPS GPSLongitudeRef E
             '''
-            longitude     = [x.num / x.den for x in exif_tags['GPS GPSLongitude'].values]
-            latitude     = [x.num / x.den for x in exif_tags['GPS GPSLatitude'].values]
-            longRef        = exif_tags['GPS GPSLongitudeRef'].values
-            latRef        = exif_tags['GPS GPSLatitudeRef'].values        
-            
-            friendly_name = str(longitude[0]) + 'd ' + str(longitude[1]) +'\' ' + str(longitude[2]) +'\'\' ' + longRef 
-            friendly_name += ', ' + str(latitude[0]) + 'd ' + str(latitude[1]) +'\' ' + str(latitude[2]) +'\'\' ' + latRef 
-            
+            longitude = [x.num / x.den for x in exif_tags['GPS GPSLongitude'].values]
+            latitude = [x.num / x.den for x in exif_tags['GPS GPSLatitude'].values]
+            longRef = exif_tags['GPS GPSLongitudeRef'].values
+            latRef = exif_tags['GPS GPSLatitudeRef'].values
+
+            friendly_name = str(longitude[0]) + 'd ' + str(longitude[1]) + '\' ' + str(longitude[2]) + '\'\' ' + longRef
+            friendly_name += ', ' + str(latitude[0]) + 'd ' + str(latitude[1]) + '\' ' + str(
+                latitude[2]) + '\'\' ' + latRef
+
             return (longitude, longRef, latitude, latRef, friendly_name)
-        
+
     return 0
 
-    
-    
+
 def extract_mfcc(audio_samples, fs):
     # find the smallest non-zero sample in both channels
-    #nonzero = min(min([abs(x) for x in audio_samples[:,0] if abs(x) > 0]), min([abs(x) for x in audio_samples[:,1] if abs(x) > 0]))
+    # nonzero = min(min([abs(x) for x in audio_samples[:,0] if abs(x) > 0]), min([abs(x) for x in audio_samples[:,1] if abs(x) > 0]))
     audio_samples = audio_samples.copy()
-    window_time_length=0.01
-    window_samples_length=int(fs*window_time_length)
+    window_time_length = 0.01
+    window_samples_length = int(fs * window_time_length)
     nonzero = 1
-    audio_samples[audio_samples==0] = nonzero
-    return mfcc(audio_samples, fs=fs,nwin=window_samples_length, nfft=window_samples_length*2)
+    audio_samples[audio_samples == 0] = nonzero
+    return mfcc(audio_samples, fs=fs, nwin=window_samples_length, nfft=window_samples_length * 2)

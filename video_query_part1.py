@@ -6,11 +6,10 @@ import cv2
 import glob
 from scipy.io import wavfile
 from video_tools import *
-import feature_extraction as ft    
+import feature_extraction as ft
 import sys
 import os
 from video_features import *
-
 
 """ 
 parser = argparse.ArgumentParser(description="Video Query tool")
@@ -30,15 +29,15 @@ def sliding_window(q_duration, frame_rate, x, w, compare_func):
     """
     # Compute the score for each frame
     best_matches = []
-    wl = len(w) 
+    wl = len(w)
     for i in range(len(x) - wl):
-        diff = compare_func(w, x[i:(i+wl)])
+        diff = compare_func(w, x[i:(i + wl)])
         frame_number = i
         best_matches.append((diff, frame_number))
 
     # Sort the frames increasingly in terms of difference
-    best_matches.sort(key = lambda x: x[0])
-    
+    best_matches.sort(key=lambda x: x[0])
+
     # Iterate through all frames
     last_frame = -np.inf
     ans = []
@@ -51,22 +50,23 @@ def sliding_window(q_duration, frame_rate, x, w, compare_func):
         if frame - last_frame >= q_duration * frame_rate:
             ans.append((frame, score))
             i += shift_value - 1
-            last_frame = frame # Update the last frame added to the list
+            last_frame = frame  # Update the last frame added to the list
 
     return ans
 
 
-def euclidean_norm_mean(x,y):
+def euclidean_norm_mean(x, y):
     x = np.mean(x, axis=0)
     y = np.mean(y, axis=0)
-    return np.linalg.norm(x-y)
+    return np.linalg.norm(x - y)
 
 
-def euclidean_norm(x,y):
-    return np.linalg.norm(x-y)
+def euclidean_norm(x, y):
+    return np.linalg.norm(x - y)
 
 
 features = ['colorhists', 'tempdiffs', 'audiopowers', 'mfccs', 'colorhistdiffs']
+
 
 def queryDatabase(file_path, frames, start, end, training_set, feature):
     frame_count = get_frame_count(file_path) + 1
@@ -77,7 +77,7 @@ def queryDatabase(file_path, frames, start, end, training_set, feature):
     if not float(start) < float(end) < q_total:
         print('Timestamp for end of query set to:', q_duration)
         end = q_total
-    
+
     # Load audio data if necessary
     if feature == features[2] or feature == features[3]:
         filename, fileExtension = os.path.splitext(frames)
@@ -87,7 +87,7 @@ def queryDatabase(file_path, frames, start, end, training_set, feature):
     query_features = []
     prev_frame = None
     prev_colorhist = None
-    frame_nbr = int(start)*frame_rate
+    frame_nbr = int(start) * frame_rate
     for frame in frames:
         if frame is None:
             break
@@ -99,14 +99,14 @@ def queryDatabase(file_path, frames, start, end, training_set, feature):
         elif feature == features[2] or feature == features[3]:
             audio_frame = frame_to_audio(frame_nbr, frame_rate, fs, wav_data)
             if feature == features[2]:
-                h = np.mean(audio_frame**2)
+                h = np.mean(audio_frame ** 2)
             elif feature == features[3]:
                 h, mspec, spec = ft.extract_mfcc(audio_frame, fs)
         elif feature == features[4]:
             colorhist = ft.colorhist(frame)
             h = colorhist_diff(prev_colorhist, colorhist)
             prev_colorhist = colorhist
-            
+
         if h is not None:
             query_features.append(h)
         prev_frame = frame
@@ -119,8 +119,8 @@ def queryDatabase(file_path, frames, start, end, training_set, feature):
     # Grab all video file names
     video_list = []
     for type_ in video_types:
-        files = training_set + '/' +  type_
-        video_list.extend(glob.glob(files))    
+        files = training_set + '/' + type_
+        video_list.extend(glob.glob(files))
 
     db_name = '~/mma-lab/Code/db/video_database.db'
     search = video_search.Searcher(db_name)
@@ -145,17 +145,17 @@ def queryDatabase(file_path, frames, start, end, training_set, feature):
             scores = sliding_window(q_duration, frame_rate, x, w, euclidean_norm)
         elif feature == features[3]:
             x = search.get_mfccs_for(video)
-            #frame, score = sliding_window(x,w, euclidean_norm_mean)
+            # frame, score = sliding_window(x,w, euclidean_norm_mean)
             print(x.shape)
-            availableLength= min(x.shape[1],w.shape[1])
-            scores = sliding_window(q_duration, frame_rate, x[:,:availableLength,:], w[:,:availableLength,:], euclidean_norm_mean)
+            availableLength = min(x.shape[1], w.shape[1])
+            scores = sliding_window(q_duration, frame_rate, x[:, :availableLength, :], w[:, :availableLength, :],
+                                    euclidean_norm_mean)
         elif feature == features[4]:
             x = search.get_chdiffs_for(video)
             scores = sliding_window(q_duration, frame_rate, x, w, euclidean_norm)
-        
-        
+
         print('Best matches at:')
         for i in range(len(scores)):
             (frame, score) = scores[i]
-            print(str(i + 1) + '.', frame/frame_rate, 'seconds, with score of:', score)
+            print(str(i + 1) + '.', frame / frame_rate, 'seconds, with score of:', score)
         print('')
