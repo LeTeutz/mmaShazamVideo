@@ -170,7 +170,7 @@ def queryDatabase(file_path, frames, start, end, training_set, feature):
 
     # Sort the list of possible final answers to find the final answer 
     final_answers.sort(key = lambda x : x[1])
-    return final_answers[0:5]
+    return final_answers[0:10]
 
     #(best_video, best_score) = final_answers[0]
 

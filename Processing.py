@@ -75,31 +75,42 @@ def findScreensInFramesCanny(frames):
         frame = cv2.GaussianBlur(frame, (5, 5), 5 / 3, cv2.BORDER_DEFAULT)
         # frame = cv2.Canny(frame, 60, 120)
 
+        # ret, frame = cv2.threshold(frame, 150, 255, cv2.THRESH_OTSU + cv2.THRESH_BINARY_INV)
+
         v = np.median(frame)
         # v /= 3
         sigma = 0.33
         lower = int(max(0, (1.0 - sigma) * v))
         upper = int(min(255, (1.0 + sigma) * v))
 
-        frame = cv2.Canny(frame, lower, upper)
-        frame = cv2.morphologyEx(frame, cv2.MORPH_GRADIENT, cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2)))
+        # frame = cv2.Canny(frame, lower, upper)
+        # cv2.imshow("test", frame)
+        frame = cv2.Canny(frame, 40, 60)
+        frame = cv2.morphologyEx(frame, cv2.MORPH_GRADIENT, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3)))
 
         keypoints = cv2.findContours(frame.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         contours = imutils.grab_contours(keypoints)
-        contours = sorted(contours, key=cv2.contourArea, reverse=True)[:10]
+        contours = sorted(contours, key=cv2.contourArea, reverse=True)[:15]
 
         frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
 
         candidates = []
         for contour in contours:
-            approx = cv2.approxPolyDP(contour, 0.01 * cv2.arcLength(contour, True), True)
+            approx = cv2.approxPolyDP(contour, 0.05 * cv2.arcLength(contour, True), True)
+            # color = (rng.randint(0, 256), rng.randint(0, 256), rng.randint(0, 256))
+            # cv2.drawContours(frame, [approx], 0, color, 2)
             (x, y), (h, w), R = cv2.minAreaRect(approx)
 
-            if len(approx) != 4:
+
+            if not 4 <= len(approx) <= 5:
                 continue
 
             # If the contour is less than 10% of the area of the frame -> discarded
             if cv2.contourArea(approx) / (W * H) < 0.10:
+                continue
+
+            # area stability
+            if cv2.contourArea(approx) / (h * w) < 0.8:
                 continue
 
             aspectratio = float(max(W, H)) / min(W, H)
@@ -110,16 +121,38 @@ def findScreensInFramesCanny(frames):
             # color = (rng.randint(0, 256), rng.randint(0, 256), rng.randint(0, 256))
             # cv2.drawContours(frame, [approx], 0, color, 2)
 
+        #print(len(candidates))
         if len(candidates) > 0:
             candidates = sorted(candidates, key=cv2.contourArea)
-            color = (rng.randint(0, 256), rng.randint(0, 256), rng.randint(0, 256))
-            cv2.drawContours(frame, [candidates[0]], 0, color, 2)
+            # color = (rng.randint(0, 256), rng.randint(0, 256), rng.randint(0, 256))
+            # cv2.drawContours(frame, [candidates[0]], 0, color, 2)
             screen = candidates[0]
         else:
-            screen = None
+            if i != 0:
+                screen = screens[i - 1]
+                # color = (rng.randint(0, 256), rng.randint(0, 256), rng.randint(0, 256))
+                # cv2.drawContours(frame, [screen], 0, color, 2)
+            else:
+                screen = None
 
         result_frames.append(frame)
         screens.append(screen)
+
+    pos = 0
+    for i in range(len(screens)):
+        if screens[i] is not None:
+            pos = i
+            break
+
+    for i in range(len(screens)):
+        if screens[i] is None:
+            screens[i] = screens[pos]
+        else:
+            break
+
+    for i in range(len(screens)):
+        color = (rng.randint(0, 256), rng.randint(0, 256), rng.randint(0, 256))
+        cv2.drawContours(result_frames[i], [screens[i]], 0, color, 2)
 
     return result_frames, screens
 
@@ -174,7 +207,6 @@ def bringScreensToFront(frames, screens):
 
         # Apply the transformation to the input
         dst = cv2.warpPerspective(frame, M, (W, H))
-        dst = cv2.resize(dst, (640, 480), interpolation=cv2.INTER_AREA) # Resize video to fit the database resolution
         output_screens.append(dst)
 
         # x, y, w, h = cv2.boundingRect(screen)

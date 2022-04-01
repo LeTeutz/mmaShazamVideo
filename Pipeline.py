@@ -31,14 +31,10 @@ def start(file_path, sample_frequency, start, end, training_set, feature):
     # --5. Query the database and print answer
     final_answers = query.queryDatabase(file_path, frames, start, end, training_set, feature)
     print("Best answers can be found in videos:")
-    for i in range(5):
+    for i in range(len(final_answers)):
         (best_video, best_score) = final_answers[i]
         print(str(best_video) + " with score " + str(best_score))
     print('')
 
-<<<<<<< HEAD
     return final_answers
     #util.displayFrames(frames)
-=======
-    # util.displayFrames(frames)
->>>>>>> d14d612ce8bafc100f8b4f4d151967ee27f91ca5
