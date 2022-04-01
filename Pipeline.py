@@ -29,7 +29,12 @@ def start(file_path, sample_frequency, start, end, training_set, feature):
     frames = proc.bringScreensToFront(frames, screens)
 
     # --5. Query the database and print answer
-    (best_video, best_score) = query.queryDatabase(file_path, frames, start, end, training_set, feature)
-    print("Best answer can be found in video " + str(best_video) + " with score " + str(best_score))
+    final_answers = query.queryDatabase(file_path, frames, start, end, training_set, feature)
+    print("Best answers can be found in videos:")
+    for i in range(5):
+        (best_video, best_score) = final_answers[i]
+        print(str(best_video) + " with score " + str(best_score))
+    print('')
 
+    return final_answers
     #util.displayFrames(frames)

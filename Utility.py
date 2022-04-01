@@ -94,6 +94,10 @@ def stabilizeVideo(path):
 
         m = cv2.estimateRigidTransform(prev_pts, curr_pts, fullAffine=False)
 
+        if m is None:
+            m = np.array([[ 1, 0, 0],
+                        [ 0,  1, 0]])
+
         dx = m[0, 2]
         dy = m[1, 2]
 

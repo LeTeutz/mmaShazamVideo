@@ -174,6 +174,7 @@ def bringScreensToFront(frames, screens):
 
         # Apply the transformation to the input
         dst = cv2.warpPerspective(frame, M, (W, H))
+        dst = cv2.resize(dst, (640, 480), interpolation=cv2.INTER_AREA) # Resize video to fit the database resolution
         output_screens.append(dst)
 
         # x, y, w, h = cv2.boundingRect(screen)

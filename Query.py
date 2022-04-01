@@ -92,6 +92,7 @@ def queryDatabase(file_path, frames, start, end, training_set, feature):
         if frame is None:
             break
 
+        h = []
         if feature == features[0]:
             h = ft.colorhist(frame)
         elif feature == features[1]:
@@ -128,7 +129,7 @@ def queryDatabase(file_path, frames, start, end, training_set, feature):
     # Loop over all videos in the database and compare frame by frame
     final_answers = []
     for video in video_list:
-        print(video)
+        #print(video)
         if get_duration(video) < q_duration:
             print(get_duration(video), q_duration)
             print('Error: query is longer than database video')
@@ -155,6 +156,8 @@ def queryDatabase(file_path, frames, start, end, training_set, feature):
             x = search.get_chdiffs_for(video)
             scores = sliding_window(q_duration, frame_rate, x, w, euclidean_norm)
 
+        #print(scores)
+
         # Print the results
         # print('Best matches at:')
         # for i in range(len(scores)):
@@ -163,10 +166,12 @@ def queryDatabase(file_path, frames, start, end, training_set, feature):
         # print('')
 
         # Add the frame with the most similarity to the list of possible final answers
-        final_answers.append((video, max(p[1] for p in scores)))
+        final_answers.append((video, min(p[1] for p in scores)))
 
     # Sort the list of possible final answers to find the final answer 
     final_answers.sort(key = lambda x : x[1])
-    (best_video, best_score) = final_answers[0]
+    return final_answers[0:5]
 
-    return (best_video, best_score)
+    #(best_video, best_score) = final_answers[0]
+
+    #return (best_video, best_score)
